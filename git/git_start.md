@@ -1,15 +1,15 @@
 # git 시작하기
-## git clone
+## 1. clone
 git clone "레파지토리 주소"  
 
-## git add
+## 2. add
 git add * / git add [파일이름]  
 -확인 git status  
 
-## git commit
+## 3. commit
 git commit -m "커밋명령어"  
 
-## git push
+## 4. push
 git push origin master  
 
 ### push 시 해당 오류 발생
