@@ -1,19 +1,18 @@
 # git 시작하기
-
-# git clone
+## git clone
 git clone "레파지토리 주소"  
 
-# git add
+## git add
 git add * / git add [파일이름]  
 -확인 git status  
 
-# git commit
+## git commit
 git commit -m "커밋명령어"  
 
-# git push
+## git push
 git push origin master  
 
-# push 시 해당 오류 발생
+### push 시 해당 오류 발생
 
 ![PushError](./image/PushError.PNG)
 발생 원인 : 원격에서 변경사항이 로컬에 적용이 안된 경우  
