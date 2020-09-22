@@ -114,7 +114,7 @@ SOAP 방식은 복잡하고 확장성이 좋지 못함. REST 방식은 HTTP meth
 
 ## 5. REST API 구성
 - 자원(RESOURCE) - URI
-- 행위(Verb) - HPPT METHOD
+- 행위(Verb) - HTTP METHOD
 - 표현 (Representations)
 
 
