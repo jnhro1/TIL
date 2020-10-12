@@ -1,63 +1,110 @@
-# DATABASE-INDEX  
-데이터베이스 설계 과정에서 테이블의 PK를 문자형 타입으로하냐 숫자형 타입으로 하냐 고민이 있었다.  
-  
-EX) 문자형 : varchar / AABBCC01 과 같이 문자+숫자형으로 이름만 봐도 내용물이 무엇인지 알 수 있게 한다.  
-    숫자형 : int / auto_increment 로 만들기 쉬우나 내용물이 무엇인지는 알 수 없다.  
-    팀원들과 이 문제에 관해 많은 토론을 하였고 그 결론을 작성해보고자 한다.  
-    
-  
-  
-## INDEX
-- 책을 예시로 특정 챕터에서 첫 페이지를 찾거나 서점에서 책을 찾듯이 데이터베이스안에서 목차 역할. 즉 색인 작업을 담당한다. 
-- 인덱스는 특정 칼럼 값을 가지고 있는 열 혹은 값을 빠르게 찾기 위해서 사용된다. 
-- MySQL은 첫 번째 열부터 전체 테이블에 걸쳐서 연관된 열을 검색하기 때문에 테이블이 크면 클 수록 비용이 엄청나게 늘어난다.  
-만약 테이블이 쿼리에 있는 컬럼에 대한 인텍스를 가지고 있다면, MySQL은 모든 데이터를 조사하지 않고도 데이터 파일의 중간에서 검색위치를 빠르게 잡아낼 수 있다.  
-인덱스 위주 검색 후, 관련된 혹은 원하는 데이터들을 가져올 수 있다고 생각할 수도 있다.
-  
-  
-  
-    여러 실무 개발자분들께 인덱스의 문자형/숫자형에 대해서 물어본 결과 거의 절반 비율로 두 방법을 모두 사용하고 있었다.  
-    (꽤 오래된 중소기업은 대부분 문자형을. 스타트업은 숫자형을 사용하고 있었다.)  
-    각각의 사용 이유를 정리해보겠다. 
-  
-  
-  
-## 문자형 EX) AABBCC01
-- 내용만 보고도 직관적으로 어떤 데이터를 담고 있는지 알 수 있다.
-- 과거 SQL 취약점 해킹에 대비하기 위해
-  
-  
-  
+## TDD
 
-## 숫자형 EX) int + auto increment
-- number 자체로 값을 자동증가하여 준다면 해당 데이터에 대한 접근이 쉽다.
-- SQL injection에서 db의 인덱스값을 서비스 자체에 표현해주는것이 좋지 않다. (데이터 노출 최소화)
-- 일단 편하다.
-- pk는 보통 clustered index로 구현되는데 정렬의 기준이 pk 값이다. 그런데 만약 pk를 email과 같이 문자형으로 둔다면 INSERT가 일어날때마다 정렬이 이루어지며 분할 등등의 오버헤드가 발생한다.  
-PK로 auto_increment를 둔다면 이러한 재정렬이 일어나지도 않고 마지막 행에만 추가가 이루어지기 때문에 위와 같은 오버헤드가 일어나지 않는다.  
-만일 pk를 지정하지 않으면 mysql에서 자동으로 (암묵적으로) clustertd index를 생성하는데 이것은 쿼리문에서는 사용할 수가 없어서 비추천을 한다.  
+테스트 주도 개발(Test-driven development, TDD)은 매우 짧은 개발 사이클을 반복하는 소프트웨어 개발 프로세스 중 하나
 
-  
-  
-  
-## COG은 숫자형으로...!
-- "편하다"라는 큰 메리트로 COG는 숫자형(auto increment)으로 pk를 지정하기로했다.
-- 단, 기본키로 auto incement로 두되 대체키로 unique한 문자열을 사용한다.
-- ex) user_idx (int/auto increment) user_email (varchar/unique)
+---
 
+### 왜 필요할까?
 
-  
-### 회고
-나는 그동안 프로젝트에서 아무 생각없이 숫자형을 사용하고 있었다.  
-그러다 과거 교수님과의 프로젝트에서 문자형을 처음 사용해보았고 pk 내용만으로도 그 칼럼이 담고있는 내용을 짐작할 수 있다는 점이 큰 매력으로 다가왔었다.  
-COG의 DB 설계과정에서 숫자형과 문자형의 차이를 제대로 알지 못하여 무엇을 써야할지 알 수 없었기에 자료조사를 나서게 됐다.  
-"색인"이라는 인덱스 존재 이유에만 집중하자면 사실 문자형이냐, 숫자형이냐 는 크게 중요치 않아보이지만 데이터의 정렬 차원에서 보면 숫자형이 내겐 더 큰 메리트로 다가왔다.  
-조사결과 조금 탄탄한 중소기업에서는 대부분 문자형을 사용했는데 어떻게 데이터 부하가 크게 발생하지 않았는지 궁금해 알아보니  
-10만~100만개의 데이터조차도 대용량의 데이터는 아니라는 사실을 알고 놀라웠다.  
-나는 앞으로 PK를 auto increment로 쓰고 대체키로 unique한 문자열을 두는 방식을 자주 사용할 것 같다. 일단은...!!
-  
-  
+- 코드를 짜기 전에 놓치는 것이 없도록 코드의 기능에 대한 체크리스트를 만드는 것이다.
+- 초기 단계에서 버그를 잡을 수 있다. 개발 단계에서 버그를 잡는 것은 프로덕션 단계에서 버그를 잡는 것보다 비용을 훨씬 절감시켜 준다.
+- 예상 시나리오를 미리 돌려보면서 가정들을 실험해 볼 수 있다.
+- TDD는 코드 리팩토링을 안전하게 할 수 있게 해준다.(코드를 바꿔도 모든 로직이 정상적으로 작동하는지, 빠트린 건 없는지)
+- TDD를 하면 우리는 시스템에 대한 테스트 리포트를 받게 되는데, 이를 통해 프로덕트 오너나 비지니스 애널리스트에게 코드에 대한 시각적 자료를 제공할 수 있게 된다.
 
-### 참고
-클러스터, 비클러스터의 개념 <https://mongyang.tistory.com/75/>
+## 단위테스트 (Unit TEST)
+
+---
+
+### 왜 필요할까?
+
+- 테스트케이스가 꼼꼼하게 작성되어 있다면, 개발과정 중에 미리 문제를 파악할 수 있다.
+- 코드변경시, 변경한 부분으로 인한 영향도를 쉽게 파악할 수 있다.
+- 코드 리팩토링을 안심하고 할 수 있다. 테스트케이스들은 내가 가입한 보험들 같다.
+- 테스트 자동화를 통해서 항상 딜리버리 가능한 제품을 만들 수 있다.
+- 새로운 입력이 팀에 합류했을때, 개발 스타일, 표준, 컨벤션등을 공유하기에 좋다.
+- 페어 프로그래밍을 할때, 테스트케이스 작성하고 개발하는 역할 핑퐁을 통해서 개발을 페어로 집중해서 진행할 수 있다.
+
+### 단위 테스트 작성 전 규칙 정하기
+
+- 독립적(Independent)이어야한다. 어떤 테스트도 다른 테스트에 의존하지 않아야한다.
+- 격리(Isolation)되어야한다. Ajax, LocalStorage, UI Event 등 테스트 대상이 의존하는 것을 다른 것으로 대체한다. 이렇게 대체하는 것을 테스트 더블(Dummy, Stub, Fake, Spy, Mock)이라고 한다.
+- given, when, then 단계에 따라 테스트 코드를 작성한다.
+
+### node.js에 적합한 단위 테스트 도구 - jest
+
+- 페이스북에서 만든 자바스크립트 테스팅 라이브러리이다.
+- 테스트 코드의 모양이 직관적이고 문서화가 잘되어 있어 요즘 많이 활용되고 있습니다.
+- node.js 환경이라면  "npm install --save-dev jest" 명령어 하나면 간단하게 설치가 가능하다.
+- 내가 원하는 function의 반환값을 예상하고 그 실행을 테스트할때 쓰기 좋은 것 같다.
+
+## API Docs
+
+---
+
+### 왜 필요할까?
+
+- 다른 서비스의 Open API를 사용하려면 무엇을 해야 할까.
+
+사용하려는 서비스의 홈페이지에 들어가서 API 사용 설명서를 읽는 것이 먼저일 것이다.
+
+API 사용자는 API 문서에 의존할 수밖에 없다.
+
+이러한 사용자를 위한 API 이용법을 정리해놓은 것이 API Docs 이다.
+
+### Unit test
+
+함수, 메소드의 결과 값이 예상한 결과 값과 일치하는지 즉, 개발자의 의도대로 작동하는지 검사한다.
+
+### Black-box
+
+내부 로직에 대한 이해 없이 올바른 입력과 올바르지 않은 입력을 사용해서 올바른 출력을 판별한다.
+
+### RESTful API는 UI가 없다!
+
+REST API는 화면이 없다.API 사용자가 Open API를 사용하기 전에 테스트할 수 있는 방법이 뭐가 있을까?
+
+1. API test tool ex) postman, swagger
+2. **HTML/JS**로 프로토타입 만들고 테스트
+3. API 제공자가 Test-bed를 제공
+
+### only static docs
+
+open api들이 정적인 형태의 문서로만 작성되어 있고 테스트해볼수가 없다.
+
+### test-bed docs
+
+문서만 제공하는 정적인 docs와는 다르게 실제 테스트해볼수 있는 test-bed 를 함께 제공한다.
+
+[API-아임포트](https://api.iamport.kr/)
+
+해당 사이트가 개발친화적으로 잘 정리되어있다.
+
+[Kakao Developers](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api)
+
+카카오 또한 api test를 제공하고 있다.
+
+[업비트](https://upbit.com/service_center/open_api_guide?__cf_chl_jschl_tk__=f3e4129ce29acaa077a0c20cbc074caf482c9171-1602496783-0-AXhNlxsUx8YZobKVOREfyyzPdFWKnoEJgXwpCsKbRlUE1_vCg_e2fZKA3C-jdvdKNGRvK7wPsJ8BkuYAHN_PGM5MbjVlE_v9KXSrxbk9prIKnRPK2tHESqxGbtxPqp1e5qt-2F7in__yx_amBaBtERpMCp5Rz2c__xUnjJ-Ut7dIoDba2Jm7QgxfcOs4YfiN47Op2dmobAJ_SXieWY0cJzGqLjAOBGBSFafM7-JtR2Pkeu5H8-WZHa_XbqVEy98a7PcBidT0E8SxqBy1h-3LD8ILMq4le_fCNlzDzytM432swOSAahVoE0cUWTEASOi_vQ)
+
+업비트의 open api 또한 참고 바란다.
+
+---
+
+## API 문서화 프레임워크 - swagger
+
+- Swagger의 주된 목적은 RESTful API를 문서화시키고 관리하는 것이다.
+- API 문서를 일반 Document로 작성하면 API 변경 시마다 문서를 수정해야 하는 불편함이 있는데, Swagger 같은 Framework를 이용하면 이를 자동화할 수 있다.
+- Swagger의 주된 목적은 API 문서의 효율적 작성이지만, 테스트 환경 또한 제공한다.
+- Swaager로 API 문서를 만들면 문서 자체가 API에 대한 설명이면서 Test-bed이다.
+- 사용자는 API 문서를 읽으면서 바로 해당 API에 대해 테스트를 해볼 수 있다.
+
+## API TEST 프레임워크 - POSTMAN
+
+- 개발한 API를 테스트하고, 테스트 결과를 공유하여 API 개발의 생산성을 높여주는 플랫폼이다.
+- swagger editor로 만든 api 문서(YAML)를 이용하여 postman에서 해당 api 검증을 위한 기본적인 구조를 만들 수 있다.
+
+[Swagger에 대한 소개 및 Postman 설치 - Postman을 활용한 API 기능 검증 (1)](https://blog.naver.com/PostView.nhn?blogId=wisestone2007&logNo=221383832858&categoryNo=29&parentCategoryNo=0&viewDate=&currentPage=1&postListTopCurrentPage=1&from=search&userTopListOpen=true&userTopListCount=5&userTopListManageOpen=false&userTopListCurrentPage=1)
+
+swagger 와 postman 의 연계 활용방법이 자세히 설명되어 있으니 참고바란다.
+  
 
