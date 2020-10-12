@@ -109,5 +109,4 @@ open api들이 정적인 형태의 문서로만 작성되어 있고 테스트해
 [Swagger에 대한 소개 및 Postman 설치 - Postman을 활용한 API 기능 검증 (1)](https://blog.naver.com/PostView.nhn?blogId=wisestone2007&logNo=221383832858&categoryNo=29&parentCategoryNo=0&viewDate=&currentPage=1&postListTopCurrentPage=1&from=search&userTopListOpen=true&userTopListCount=5&userTopListManageOpen=false&userTopListCurrentPage=1)
 
 swagger 와 postman 의 연계 활용방법이 자세히 설명되어 있으니 참고바란다.
-  
 
