@@ -1,4 +1,4 @@
-## pull request
+# pull request
 내가 작업한 코드가 있으니 내 브랜치를 당겨 검토 후 병합해주세요
 
 ---
